@@ -323,9 +323,16 @@ function parseNum(s){
   if(s===null||s===undefined) return 0;
   s = String(s).trim().replace(/\$/g,'').replace(/\s/g,'');
   if(s===''||s==='-') return 0;
-  // Si tiene coma y no punto, la coma es decimal; si tiene ambos, los puntos son miles
-  if(s.includes(',') && !s.includes('.')) s = s.replace(',', '.');
-  else s = s.replace(/,/g,'');
+  // Detectar si la coma es separador de miles (X,XXX) o decimal (X,XX o X,X)
+  // Si hay coma seguida de exactamente 3 dígitos (y sin punto), es separador de miles
+  const commaThouPattern = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/;
+  if(commaThouPattern.test(s)){
+    s = s.replace(/,/g,''); // quitar separadores de miles
+  } else if(s.includes(',') && !s.includes('.')){
+    s = s.replace(',','.'); // coma como decimal
+  } else {
+    s = s.replace(/,/g,''); // quitar cualquier coma restante
+  }
   const n = parseFloat(s);
   return isNaN(n)?0:n;
 }
