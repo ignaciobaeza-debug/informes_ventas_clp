@@ -424,6 +424,7 @@ let rankingOpen = false;
 const MN = {1:'Enero',2:'Febrero',3:'Marzo',4:'Abril',5:'Mayo',6:'Junio'};
 const MESES = [1,2,3,4,5,6];
 const SEASON_MAP = {1:'s-alto',2:'s-alto',3:'s-valle',4:'s-valle',5:'s-valle',6:'s-valle'};
+const SEASON_LABEL = {1:'Temporada alta',2:'Temporada alta',3:'Inicio valle',4:'Valle',5:'Valle',6:'Valle'};
 
 function fmt(n){ n=Number(n)||0; const a=Math.abs(n); if(a>=1e9) return '$'+(n/1e9).toFixed(1)+'B'; if(a>=1e6) return '$'+(n/1e6).toFixed(1)+'M'; if(a>=1e3) return '$'+(n/1e3).toFixed(0)+'K'; return '$'+Math.round(n).toLocaleString('es-CL'); }
 function fmtN(n){ n=Number(n)||0; if(Math.abs(n)>=1e6) return (n/1e6).toFixed(1)+'M'; if(Math.abs(n)>=1e3) return (n/1e3).toFixed(0)+'K'; return Math.round(n).toLocaleString('es-CL'); }
@@ -500,7 +501,7 @@ function updateHeaderBadge(){
 }
 
 function selAll(btn){
-  selMeses = new Set([1,2,3,4,5]);
+  selMeses = new Set(MESES);
   MESES.forEach(m=>document.getElementById('mtab-'+m)?.classList.add('on'));
   btn.classList.add('on');
   updateHeaderBadge();
@@ -584,8 +585,7 @@ function renderResumen(){
   // Tabla evolutiva
   const d = getD();
   const rows = d.meses || [d.m];
-  const seasonTags = {1:'s-alto',2:'s-alto',3:'s-valle',4:'s-valle',5:'s-valle'};
-  const seasonLabel = {1:'Temporada alta',2:'Temporada alta',3:'Inicio valle',4:'Valle',5:'Valle'};
+  // (usa SEASON_MAP / SEASON_LABEL globales — una sola fuente de verdad para todos los meses)
   const sel=getSelMeses(); document.getElementById('res-period-lbl').textContent = sel.length===MESES.length?`${MN[MESES[0]]} – ${MN[MESES[MESES.length-1]]} 2026`:sel.map(m=>MD[m].n).join(', ')+' 2026';
 
   document.getElementById('tbody-resumen').innerHTML = MESES.map((mes,i)=>{
@@ -596,7 +596,7 @@ function renderResumen(){
     const highlight = selMeses.size<MESES.length && selMeses.has(mes);
     return `<tr${highlight?' style="background:var(--az4);font-weight:700"':''}>
       <td style="font-weight:700">${r.n}</td>
-      <td><span class="season-tag ${seasonTags[mes]}">${seasonLabel[mes]}</span></td>
+      <td><span class="season-tag ${SEASON_MAP[mes]||'s-valle'}">${SEASON_LABEL[mes]||'—'}</span></td>
       <td class="num">${fmt(r.vt)}</td>
       <td class="num" style="color:var(--mg2);font-weight:700">${fmt(r.ut)}</td>
       <td class="num">${r.mg}%</td>
